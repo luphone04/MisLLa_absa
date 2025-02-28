@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  reviews   Review[]
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  text      String
+  createdAt DateTime @default(now())
+  aspects   Aspect[]
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+}
+
+model Aspect {
+  id        String @id @default(cuid())
+  name      String
+  sentiment String // "positive", "negative", or "neutral"
+  review    Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  reviewId  String
+}
+
+model AspectAnalysis {
+  id            String @id @default(cuid())
+  aspect        String @unique
+  totalMentions Int
+  positive      Int
+  negative      Int
+  neutral       Int
+}
